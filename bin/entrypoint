@@ -1,0 +1,36 @@
+#!/bin/sh
+
+CFG_DIR="/etc/umurmur/"
+
+updateIDs() {
+	if ! usermod -u "${UMURMUR_UID}" umurmur; then
+		printf "\nCannot change umurmur UID to %s" "${UMURMUR_UID}"
+		exit 1
+	fi
+	if ! groupmod -g "${UMURMUR_GUID}" umurmur; then
+		printf "\nCannot change umurmur GUID to %s" "${UMURMUR_GUID}"
+		exit 2
+	fi
+	return 0
+}
+
+# Copy all templates to /etc/umurmur/, evaluate them and delete the files
+cp -R /templates/* "$CFG_DIR"
+for f in $(find "$CFG_DIR" -type f -name "*.j2"); do
+    echo -e "Evaluating template\n\tSource: $f\n\tDest: ${f%.j2}"
+    j2 $f > ${f%.j2}
+    rm -f $f
+done
+
+for f in /docker-entrypoint-init.d/*; do
+    case "$f" in
+        *.sh)  echo "Running $f"; . "$f" ;;
+        *)     echo "Ignoring $f" ;;
+    esac
+    echo
+done
+
+updateIDs
+
+cd "$CFG_DIR"
+exec "$@"
