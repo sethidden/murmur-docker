@@ -2,7 +2,7 @@
 image: docker:17.06.0-ce
 
 services:
-  - name: docker:17.06.0-ce-dind
+  - name: gitlab/dind
     alias: dind
 
 before_script:
