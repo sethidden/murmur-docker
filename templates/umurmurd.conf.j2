@@ -11,8 +11,8 @@ password = "{{ PASSWORD }}";
 admin_password = "{{ ADMIN_PASSWORD }}";   # Set to enable admin functionality.
 
 ## SSL --------------------------------
-certificate = "/etc/umurmur/cert/fullchain.pem";
-private_key = "/etc/umurmur/cert/privkey.pem";
+certificate = "/etc/umurmur/cert/{{ CERT_NAME }}";
+private_key = "/etc/umurmur/cert/{{ KEY_NAME }}";
 # ca_path = "/etc/umurmur/cert/";  # Location of CA certificate. Relevant for OpenSSL only.
 
 ## LOG --------------------------------

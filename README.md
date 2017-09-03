@@ -56,7 +56,11 @@ Here's a short explanation how to use `umurmur`:
     ```sh
     docker run -ti -p 64738:64738 -p 64738:64738/udp -v <your-certificates-folder>:/etc/umurmur/cert umurmur:0.1
     ```
-    The present umurmur configuration will look for files named fullchain.pem and privkey.pem (based on let's encrypt certificate files)
+    The default umurmur configuration will look for files named fullchain.pem and privkey.pem (based on let's encrypt certificate files)
+    To override the filenames, you can use env variables CERT_NAME and KEY_NAME:
+    ```sh
+    docker run -ti -p 64738:64738 -p 64738:64738/udp -v <your-certificates-folder>:/etc/umurmur/cert -e CERT_NAME=<my-cert.pem> -e KEY_NAME=<my-privkey.pem> umurmur:0.1
+    ```
 
     + Expose logs folder if you enable logging
     ```sh
