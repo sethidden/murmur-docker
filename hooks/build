@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [[ "$IMAGE_NAME" == "umurmur:latest" ]]; then
-	docker build -t $NAME .
+	docker build -t $IMAGE_NAME .
 else
 	NAME=$IMAGE_NAME:$VERSION
 	if [[ "$BUILD_NUMURMON" == "On" ]] && [[ "$BUILD_UMURMUR_MONITOR" == "On" ]]; then
