@@ -22,13 +22,10 @@ private_key = "/etc/umurmur/cert/{{ KEY_NAME }}";
 {% else %}# logfile = "/var/log/umurmurd.log";{% endif %}
 
 ## USERS ------------------------------
+username = "umurmur";
+groupname = "umurmur";
 max_users = {{ MAX_USERS }};
 show_addresses = {{ SHOW_IPS }};     # Whether to show client's IP addresses under user information
-# username and groupname for privilege dropping.
-# Will attempt to switch user if set. 
-# username = "";
-# If groupname not set the user's default login group will be used
-# groupname = "";
 
 ## BAN --------------------------------
 ban_length = {{ BAN_SECONDS }};           # Length in seconds for a ban. Default is 0. 0 = forever.
