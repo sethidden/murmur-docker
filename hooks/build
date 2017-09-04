@@ -1,5 +1,10 @@
 #!/bin/bash
 
+printf "\nBuilding Context for Repo: %s" "$DOCKER_REPO"
+printf "\n-- SOURCE_BRANCH: %s" "$SOURCE_BRANCH"
+printf "\n-- SOURCE_COMMIT: %s(%s)" "$SOURCE_COMMIT" "$COMMIT_MSG"
+printf "\n-- IMAGE_NAME: %s (%s)" "$IMAGE_NAME" "$CACHE_TAG"
+
 if [[ "$IMAGE_NAME" == "umurmur:latest" ]]; then
 	docker build -t $IMAGE_NAME .
 else
