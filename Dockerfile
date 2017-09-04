@@ -1,13 +1,12 @@
 FROM alpine:3.6
 
+# UMURMUR BUILD SETTINGS
 ARG BUILD_UMURMUR_MONITOR="Off"
 ARG BUILD_NUMURMON="Off"
 ARG SSL="openssl"
+ARG VERSION="0.2.17"
 
 MAINTAINER Jeremy PETIT <jeremy.petit@gmail.com>
-
-## UMURMUR VERSION
-ENV VERSION "0.2.17"
 
 ## CUSTOM UMURMUR UID/GID
 ENV UMURMUR_USER "umurmur"
@@ -40,6 +39,8 @@ EXPOSE 64738:64738 64738:64738/udp
 VOLUME ["/var/log", "/etc/umurmur/cert"]
 
 ## INSTALL USR/GRP TOOLS, BUILD TOOLS, PIP & J2
+#  CREATE USER/GROUP
+#  INSTALL MURMUR (apk add --no-cache umurmur)
 RUN  echo http://dl-2.alpinelinux.org/alpine/edge/community/ >> /etc/apk/repositories \
 	&& apk --no-cache add \
 		cmake \
@@ -55,14 +56,10 @@ RUN  echo http://dl-2.alpinelinux.org/alpine/edge/community/ >> /etc/apk/reposit
 		py-pip \
 		shadow \
 	&& pip install --upgrade pip \
-	&& pip install j2cli[yaml]
-
-## CREATE USER/GROUP
-RUN  addgroup -g "${UMURMUR_GUID}" -S "${UMURMUR_GROUP}" 2>/dev/null \
-	&& adduser  -u "${UMURMUR_UID}"  -S -D -h /var/run/umurmurd -s /bin/sh -G "${UMURMUR_GROUP}" -g "${UMURMUR_GROUP}" "${UMURMUR_USER}" 2>/dev/null
-
-## INSTALL MURMUR (apk add --no-cache umurmur) -BUILD_NUMURMON=On
-RUN git clone --recursive -b "${VERSION}" "https://github.com/umurmur/umurmur.git" "/tmp/umurmur-src" \
+	&& pip install j2cli[yaml] \
+	&& addgroup -g "${UMURMUR_GUID}" -S "${UMURMUR_GROUP}" 2>/dev/null \
+	&& adduser  -u "${UMURMUR_UID}"  -S -D -h /var/run/umurmurd -s /bin/sh -G "${UMURMUR_GROUP}" -g "${UMURMUR_GROUP}" "${UMURMUR_USER}" 2>/dev/null \
+	&& git clone --recursive -b "${VERSION}" "https://github.com/umurmur/umurmur.git" "/tmp/umurmur-src" \
 	&& mkdir -p /tmp/umurmur \
 	&& cd /tmp/umurmur \
 	&& cmake -DSSL="$SSL" -DBUILD_UMURMUR_MONITOR="$BUILD_UMURMUR_MONITOR" -DBUILD_NUMURMON="$BUILD_NUMURMON" "/tmp/umurmur-src" \
@@ -70,7 +67,13 @@ RUN git clone --recursive -b "${VERSION}" "https://github.com/umurmur/umurmur.gi
 	&& make install \
 	&& rm -rf /tmp/umurmur* \
 	&& mv /usr/local/etc/umurmur.conf /etc/umurmur/umurmurd.conf.default \
-	&& apk del cmake gcc git libc-dev libconfig-dev make
+	&& apk del \
+		cmake \
+		gcc \
+		git \
+		libc-dev \
+		libconfig-dev \
+		make
 
 # COPY SCRIPTS & TEMPLATES
 COPY bin/* /usr/bin/

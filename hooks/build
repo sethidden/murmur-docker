@@ -1,0 +1,12 @@
+#!/bin/bash
+
+NAME=$IMAGE_NAME:$VERSION-$SOURCE_BRANCH
+
+if "$BUILD_NUMURMON" == "On" && "$BUILD_UMURMUR_MONITOR" == "On"; then
+		NAME="$NAME-full"
+	elif "$BUILD_NUMURMON" == "On"; then
+		NAME="$NAME-numurmon"
+	elif "$BUILD_UMURMUR_MONITOR" == "On"; then
+		label="$label-monitor"
+	fi
+docker build --build-arg VERSION=$VERSION --build-arg SSL=$SSL --build-arg BUILD_NUMURMON=$BUILD_NUMURMON --build-arg BUILD_UMURMUR_MONITOR=$BUILD_UMURMUR_MONITOR -t $NAME .
