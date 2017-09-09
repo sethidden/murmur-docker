@@ -1,32 +1,34 @@
 #!/bin/bash
+set  -x
 
+VERSION="$(grep 'ARG VERSION=' Dockerfile | awk -F'=' '{ print $2 }' )"
 printf "\nBuilding Context for Repo: %s" "$DOCKER_REPO"
-printf "\n-- SOURCE_BRANCH: %s" "$SOURCE_BRANCH"
-printf "\n-- SOURCE_COMMIT: %s(%s)" "$SOURCE_COMMIT" "$COMMIT_MSG"
-printf "\n-- IMAGE_NAME: %s (%s)" "$IMAGE_NAME" "$CACHE_TAG"
+printf "\n-- SOURCE_BRANCH	: %s" "$SOURCE_BRANCH"
+printf "\n-- SOURCE_COMMIT	: %s (%s)" "$SOURCE_COMMIT" "$COMMIT_MSG"
+printf "\n-- IMAGE_NAME 		: %s (%s)" "$IMAGE_NAME" "$CACHE_TAG"
+printf "\n-- UMURMUR VERSION: %s (%s)" "$VERSION"
 printf "\n"
 
-# NAME=$IMAGE_NAME-$VERSION
-# if [[ "$BUILD_NUMURMON" == "On" ]] && [[ "$BUILD_UMURMUR_MONITOR" == "On" ]]; then
-# 	NAME="$NAME-full"
-# elif [[ "$BUILD_NUMURMON" == "On" ]]; then
-# 	NAME="$NAME-numurmon"
-# elif [[ "$BUILD_UMURMUR_MONITOR" == "On" ]]; then
-# 	label="$label-monitor"
-# fi
-# docker build --build-arg VERSION=$VERSION --build-arg SSL=$SSL --build-arg BUILD_NUMURMON=$BUILD_NUMURMON --build-arg BUILD_UMURMUR_MONITOR=$BUILD_UMURMUR_MONITOR -t $NAME .
+buildUmurmur(){
+	UMURMUR_VERSION="$1"
+	SSL="$2"
+	BUILD_NUMURMON="$3"
+	BUILD_UMURMUR_MONITOR="$4"
+	NAME="${IMAGE_NAME}-${UMURMUR_VERSION}"
+	if [[ "$3" == "On" ]] && [[ "$4" == "On" ]]; then
+		NAME="$NAME-full"
+	else 
+		[[ "$3" == "On" ]] && NAME="$NAME-numurmon"
+		[[ "$4" == "On" ]] &&	NAME="$NAME-monitor"
+	fi
+	printf "\n\n## Building %s ##\n" "$NAME"
+	docker build --build-arg VERSION="$UMURMUR_VERSION" \
+		--build-arg SSL="$SSL" \
+		--build-arg BUILD_NUMURMON="$BUILD_NUMURMON" --build-arg BUILD_UMURMUR_MONITOR="$BUILD_UMURMUR_MONITOR" \
+		-t "$NAME" .
+}
 
-
-docker build --build-arg VERSION=$VERSION --build-arg SSL="openssl" \
-	--build-arg BUILD_NUMURMON="Off" --build-arg BUILD_UMURMUR_MONITOR="Off" \
-	-t $NAME-$VERSION .
-docker build --build-arg VERSION=$VERSION --build-arg SSL="openssl" \
-	--build-arg BUILD_NUMURMON="On" --build-arg BUILD_UMURMUR_MONITOR="Off" \
-	-t $NAME-$VERSION-numurmon .
-docker build --build-arg VERSION=$VERSION --build-arg SSL="openssl" \
-	--build-arg BUILD_NUMURMON="Off" --build-arg BUILD_UMURMUR_MONITOR="On" \
-	-t $NAME-$VERSION-monitor .
-docker build --build-arg VERSION=$VERSION --build-arg SSL="openssl" \
-	--build-arg BUILD_NUMURMON="On" --build-arg BUILD_UMURMUR_MONITOR="On" \
-	-t $NAME-$VERSION-full .
-	
+buildUmurmur "$VERSION" "openssl" "Off" "Off"
+buildUmurmur "$VERSION" "openssl" "On" 	"Off"
+buildUmurmur "$VERSION" "openssl" "Off" "On"
+buildUmurmur "$VERSION" "openssl" "On" 	"On"
