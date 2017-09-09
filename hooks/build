@@ -6,12 +6,27 @@ printf "\n-- SOURCE_COMMIT: %s(%s)" "$SOURCE_COMMIT" "$COMMIT_MSG"
 printf "\n-- IMAGE_NAME: %s (%s)" "$IMAGE_NAME" "$CACHE_TAG"
 printf "\n"
 
-NAME=$IMAGE_NAME-$VERSION
-if [[ "$BUILD_NUMURMON" == "On" ]] && [[ "$BUILD_UMURMUR_MONITOR" == "On" ]]; then
-	NAME="$NAME-full"
-elif [[ "$BUILD_NUMURMON" == "On" ]]; then
-	NAME="$NAME-numurmon"
-elif [[ "$BUILD_UMURMUR_MONITOR" == "On" ]]; then
-	label="$label-monitor"
-fi
-docker build --build-arg VERSION=$VERSION --build-arg SSL=$SSL --build-arg BUILD_NUMURMON=$BUILD_NUMURMON --build-arg BUILD_UMURMUR_MONITOR=$BUILD_UMURMUR_MONITOR -t $NAME .
+# NAME=$IMAGE_NAME-$VERSION
+# if [[ "$BUILD_NUMURMON" == "On" ]] && [[ "$BUILD_UMURMUR_MONITOR" == "On" ]]; then
+# 	NAME="$NAME-full"
+# elif [[ "$BUILD_NUMURMON" == "On" ]]; then
+# 	NAME="$NAME-numurmon"
+# elif [[ "$BUILD_UMURMUR_MONITOR" == "On" ]]; then
+# 	label="$label-monitor"
+# fi
+# docker build --build-arg VERSION=$VERSION --build-arg SSL=$SSL --build-arg BUILD_NUMURMON=$BUILD_NUMURMON --build-arg BUILD_UMURMUR_MONITOR=$BUILD_UMURMUR_MONITOR -t $NAME .
+
+
+docker build --build-arg VERSION=$VERSION --build-arg SSL="openssl" \
+	--build-arg BUILD_NUMURMON="Off" --build-arg BUILD_UMURMUR_MONITOR="Off" \
+	-t $NAME-$VERSION .
+docker build --build-arg VERSION=$VERSION --build-arg SSL="openssl" \
+	--build-arg BUILD_NUMURMON="On" --build-arg BUILD_UMURMUR_MONITOR="Off" \
+	-t $NAME-$VERSION-numurmon .
+docker build --build-arg VERSION=$VERSION --build-arg SSL="openssl" \
+	--build-arg BUILD_NUMURMON="Off" --build-arg BUILD_UMURMUR_MONITOR="On" \
+	-t $NAME-$VERSION-monitor .
+docker build --build-arg VERSION=$VERSION --build-arg SSL="openssl" \
+	--build-arg BUILD_NUMURMON="On" --build-arg BUILD_UMURMUR_MONITOR="On" \
+	-t $NAME-$VERSION-full .
+	
