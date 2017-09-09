@@ -1,7 +1,7 @@
 #!/bin/bash
 set  -x
 
-VERSION="$(grep 'ARG VERSION=' Dockerfile | awk -F'=' '{ print $2 }' )"
+VERSION="$(grep 'ARG VERSION=' Dockerfile | awk -F'=' '{ print $2 }' | tr -d '"' )"
 printf "\nBuilding Context for Repo: %s" "$DOCKER_REPO"
 printf "\n-- SOURCE_BRANCH	: %s" "$SOURCE_BRANCH"
 printf "\n-- SOURCE_COMMIT	: %s (%s)" "$SOURCE_COMMIT" "$COMMIT_MSG"
