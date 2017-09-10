@@ -8,13 +8,9 @@ printf "\n#########################"
 for i in $(cat hooks/names); do
 	printf "\nPushing %s...\n" "$i"
 	docker push "$i"
-	if [[ "$i" =~ .*-full ]]; then
-		# Parse image name for repo name
-		tagStart=$(expr index "$i" :)  
-		repoName=${i:0:tagStart-1}
-		# Push latest
-		docker tag $i ${repoName}:latest
-		printf "\nPushing %s as %s...\n" "$i" "${repoName}:latest"
+	if [[ "$SOURCE_BRANCH" =~ ^[0-9.]+$ ]] && [[ "$i" =~ .*-full ]]; then
+		docker tag "$i" "${REPO_NAME}:latest"
+		printf "\nPushing %s as %s...\n" "$i" "${REPO_NAME}:latest"
     docker push ${repoName}:latest
 	fi
 done

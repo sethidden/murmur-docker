@@ -19,6 +19,7 @@ buildUmurmur(){
 	SSL="$2"
 	BUILD_NUMURMON="$3"
 	BUILD_UMURMUR_MONITOR="$4"
+	NAME="$5"
 	NAME="${IMAGE_NAME}-${UMURMUR_VERSION}"
 	if [[ "$3" == "On" ]] && [[ "$4" == "On" ]]; then
 		NAME="$NAME-full"
@@ -33,9 +34,13 @@ buildUmurmur(){
 		-t "$NAME" . && IMAGES2PUSH="$NAME $IMAGES2PUSH" || (printf "\nCannot build %s" "$NAME"; exit 1)
 }
 
-
-buildUmurmur "$VERSION" "openssl" "Off" "Off" 
-buildUmurmur "$VERSION" "openssl" "On" 	"Off"
-buildUmurmur "$VERSION" "openssl" "Off" "On"
-buildUmurmur "$VERSION" "openssl" "On" 	"On"
+if [[ "$SOURCE_BRANCH" =~ ^[0-9.]+$ ]]; then
+	printf "\n##  Building Release %s" "$SOURCE_BRANCH"
+else
+	printf "\n##  Building test %s" "$SOURCE_BRANCH"
+fi
+buildUmurmur "$VERSION" "openssl" "Off" "Off" "$REPO_NAME:$SOURCE_BRANCH-$VERSION"
+buildUmurmur "$VERSION" "openssl" "On" 	"Off" "$REPO_NAME:$SOURCE_BRANCH-$VERSION-numurmon"
+buildUmurmur "$VERSION" "openssl" "Off" "On" 	"$REPO_NAME:$SOURCE_BRANCH-$VERSION-monitor"
+buildUmurmur "$VERSION" "openssl" "On" 	"On" 	"$REPO_NAME:$SOURCE_BRANCH-$VERSION-full"
 echo "$IMAGES2PUSH" > hooks/names
