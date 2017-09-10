@@ -20,13 +20,14 @@ buildUmurmur(){
 	BUILD_NUMURMON="$3"
 	BUILD_UMURMUR_MONITOR="$4"
 	NAME="$5"
-	NAME="${IMAGE_NAME}-${UMURMUR_VERSION}"
+	
 	if [[ "$3" == "On" ]] && [[ "$4" == "On" ]]; then
 		NAME="$NAME-full"
 	else 
 		[[ "$3" == "On" ]] && NAME="$NAME-numurmon"
 		[[ "$4" == "On" ]] &&	NAME="$NAME-monitor"
 	fi
+	
 	printf "\n\n## Building %s ##\n" "$NAME"
 	docker build --build-arg VERSION="$UMURMUR_VERSION" \
 		--build-arg SSL="$SSL" \
