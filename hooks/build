@@ -1,6 +1,8 @@
 #!/bin/bash
 # set  -x
-printf "\n## Start Custom Build ##"
+printf "\n##########################"
+printf "\n##  Start Custom Build  ##"
+printf "\n##########################"
 
 VERSION="$(grep 'ARG VERSION=' Dockerfile | awk -F'=' '{ print $2 }' | tr -d '"' )"
 printf "\nBuilding Context for Repo: %s" "$DOCKER_REPO"
@@ -30,9 +32,9 @@ buildUmurmur(){
 		-t "$NAME" . && IMAGES2PUSH="$NAME $IMAGES2PUSH" 
 }
 
-echo "" > build.tmp
+
 buildUmurmur "$VERSION" "openssl" "Off" "Off"
 buildUmurmur "$VERSION" "openssl" "On" 	"Off"
 buildUmurmur "$VERSION" "openssl" "Off" "On"
 buildUmurmur "$VERSION" "openssl" "On" 	"On"
-export IMAGES2PUSH
+echo "$IMAGES2PUSH" > hooks/names

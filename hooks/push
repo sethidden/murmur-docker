@@ -1,9 +1,11 @@
 #!/bin/bash
 set  -x
 
-printf "\n## Start Custom Push ##"
+printf "\n#########################"
+printf "\n##  Start Custom Push  ##"
+printf "\n#########################"
 
-for i in $IMAGES2PUSH; do
+for i in $(cat hooks/names); do
 	printf "\nPushing %s...\n" "$i"
 	docker push "$i"
 	if [[ "$i" =~ .*-full ]]; then
