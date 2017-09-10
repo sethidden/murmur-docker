@@ -4,7 +4,11 @@ set  -x
 for i in $IMAGES2PUSH; do
 	docker push "$i"
 	if [[ "$i" =~ .*-full ]]; then
-		docker tag "$i" "${i%:*}:latest"
-		docker push "${i%:*}:latest"
+		# Parse image name for repo name
+		tagStart=$(expr index "$i" :)  
+		repoName=${i:0:tagStart-1}
+		# Push latest
+		docker tag $i ${repoName}:latest
+    docker push ${repoName}:latest
 	fi
 done
