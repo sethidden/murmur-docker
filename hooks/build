@@ -8,6 +8,7 @@ printf "\n-- SOURCE_COMMIT	: %s (%s)" "$SOURCE_COMMIT" "$COMMIT_MSG"
 printf "\n-- IMAGE_NAME 		: %s (%s)" "$IMAGE_NAME" "$CACHE_TAG"
 printf "\n-- UMURMUR VERSION: %s (%s)" "$VERSION"
 printf "\n"
+IMAGES2PUSH=""
 
 buildUmurmur(){
 	UMURMUR_VERSION="$1"
@@ -25,10 +26,12 @@ buildUmurmur(){
 	docker build --build-arg VERSION="$UMURMUR_VERSION" \
 		--build-arg SSL="$SSL" \
 		--build-arg BUILD_NUMURMON="$BUILD_NUMURMON" --build-arg BUILD_UMURMUR_MONITOR="$BUILD_UMURMUR_MONITOR" \
-		-t "$NAME" .
+		-t "$NAME" . && IMAGES2PUSH="$NAME $IMAGES2PUSH" 
 }
 
+echo "" > build.tmp
 buildUmurmur "$VERSION" "openssl" "Off" "Off"
 buildUmurmur "$VERSION" "openssl" "On" 	"Off"
 buildUmurmur "$VERSION" "openssl" "Off" "On"
 buildUmurmur "$VERSION" "openssl" "On" 	"On"
+export $IMAGES2PUSH
