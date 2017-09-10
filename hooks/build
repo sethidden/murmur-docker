@@ -9,6 +9,10 @@ VERSION="$(grep 'ARG VERSION=' Dockerfile | awk -F'=' '{ print $2 }' | tr -d '"'
 if [[ "$SOURCE_BRANCH" =~ ^[0-9.]+$ ]]; then
 	printf "\n[RELEASE] Build for Repo: %s" 	"$DOCKER_REPO"
 else
+	if [[ "$SOURCE_BRANCH" == "master" ]]; then
+		printf "\n[MASTER] Not Building from master"
+		exit 0
+	fi
 	printf "\n[TEST] Build for Repo: %s" 	"$DOCKER_REPO"
 fi
 printf "\n-- SOURCE_BRANCH	: %s" 				"$SOURCE_BRANCH"
