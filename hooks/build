@@ -8,8 +8,9 @@ VERSION="$(grep 'ARG VERSION=' Dockerfile | awk -F'=' '{ print $2 }' | tr -d '"'
 printf "\nBuilding Context for Repo: %s" "$DOCKER_REPO"
 printf "\n-- SOURCE_BRANCH	: %s" "$SOURCE_BRANCH"
 printf "\n-- SOURCE_COMMIT	: %s (%s)" "$SOURCE_COMMIT" "$COMMIT_MSG"
+printf "\n-- REPO_NAME 			: %s" "$REPO_NAME"
 printf "\n-- IMAGE_NAME 		: %s (%s)" "$IMAGE_NAME" "$CACHE_TAG"
-printf "\n-- UMURMUR VERSION: %s (%s)" "$VERSION"
+printf "\n-- UMURMUR VERSION: %s" "$VERSION"
 printf "\n"
 IMAGES2PUSH=""
 
@@ -29,11 +30,11 @@ buildUmurmur(){
 	docker build --build-arg VERSION="$UMURMUR_VERSION" \
 		--build-arg SSL="$SSL" \
 		--build-arg BUILD_NUMURMON="$BUILD_NUMURMON" --build-arg BUILD_UMURMUR_MONITOR="$BUILD_UMURMUR_MONITOR" \
-		-t "$NAME" . && IMAGES2PUSH="$NAME $IMAGES2PUSH" 
+		-t "$NAME" . && IMAGES2PUSH="$NAME $IMAGES2PUSH" || (printf "\nCannot build %s" "$NAME"; exit 1)
 }
 
 
-buildUmurmur "$VERSION" "openssl" "Off" "Off"
+buildUmurmur "$VERSION" "openssl" "Off" "Off" 
 buildUmurmur "$VERSION" "openssl" "On" 	"Off"
 buildUmurmur "$VERSION" "openssl" "Off" "On"
 buildUmurmur "$VERSION" "openssl" "On" 	"On"

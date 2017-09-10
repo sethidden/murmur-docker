@@ -1,5 +1,5 @@
 #!/bin/bash
-set  -x
+# set  -x
 
 printf "\n#########################"
 printf "\n##  Start Custom Push  ##"
