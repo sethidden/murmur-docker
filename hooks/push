@@ -11,6 +11,6 @@ for i in $(cat hooks/names); do
 	if [[ "$SOURCE_BRANCH" =~ ^[0-9.]+$ ]] && [[ "$i" =~ .*-full ]]; then
 		docker tag "$i" "${REPO_NAME}:latest"
 		printf "\nPushing %s as %s...\n" "$i" "${REPO_NAME}:latest"
-    docker push ${repoName}:latest
+    docker push "${REPO_NAME}:latest"
 	fi
 done
