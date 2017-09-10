@@ -1,5 +1,6 @@
 #!/bin/bash
-set  -x
+# set  -x
+printf "\n## Start Custom Build ##"
 
 VERSION="$(grep 'ARG VERSION=' Dockerfile | awk -F'=' '{ print $2 }' | tr -d '"' )"
 printf "\nBuilding Context for Repo: %s" "$DOCKER_REPO"

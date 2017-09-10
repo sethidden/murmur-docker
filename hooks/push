@@ -1,7 +1,10 @@
 #!/bin/bash
 set  -x
 
+printf "\n## Start Custom Push ##"
+
 for i in $IMAGES2PUSH; do
+	printf "\nPushing %s...\n" "$i"
 	docker push "$i"
 	if [[ "$i" =~ .*-full ]]; then
 		# Parse image name for repo name
@@ -9,6 +12,7 @@ for i in $IMAGES2PUSH; do
 		repoName=${i:0:tagStart-1}
 		# Push latest
 		docker tag $i ${repoName}:latest
+		printf "\nPushing %s as %s...\n" "$i" "${repoName}:latest"
     docker push ${repoName}:latest
 	fi
 done
