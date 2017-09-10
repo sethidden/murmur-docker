@@ -1,5 +1,5 @@
 #!/bin/bash
 
-for i in "$IMAGES2PUSH"; do
+for i in $IMAGES2PUSH; do
 	docker push "$i"
 done

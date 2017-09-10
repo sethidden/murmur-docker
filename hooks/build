@@ -34,4 +34,4 @@ buildUmurmur "$VERSION" "openssl" "Off" "Off"
 buildUmurmur "$VERSION" "openssl" "On" 	"Off"
 buildUmurmur "$VERSION" "openssl" "Off" "On"
 buildUmurmur "$VERSION" "openssl" "On" 	"On"
-export $IMAGES2PUSH
+export IMAGES2PUSH
