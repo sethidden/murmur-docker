@@ -4,7 +4,7 @@ printf "\n##########################"
 printf "\n##  Start Custom Build  ##"
 printf "\n##########################"
 
-echo "" > hooks/names
+
 VERSION="$(grep 'ARG VERSION=' Dockerfile | awk -F'=' '{ print $2 }' | tr -d '"' )"
 if [[ "$SOURCE_BRANCH" =~ ^[0-9.]+$ ]]; then
 	printf "\n[RELEASE] Build for Repo: %s" 	"$DOCKER_REPO"
@@ -36,6 +36,7 @@ buildUmurmur(){
 		-t "$NAME" . && echo "$NAME" >> hooks/names || (printf "\nCannot build %s" "$NAME"; exit 1)
 }
 
+echo "" > hooks/names
 buildUmurmur "$VERSION" "openssl" "Off" "Off" "$REPO_NAME:$SOURCE_BRANCH-$VERSION"
 buildUmurmur "$VERSION" "openssl" "On" 	"Off" "$REPO_NAME:$SOURCE_BRANCH-$VERSION-numurmon"
 buildUmurmur "$VERSION" "openssl" "Off" "On" 	"$REPO_NAME:$SOURCE_BRANCH-$VERSION-monitor"

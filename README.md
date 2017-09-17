@@ -49,7 +49,7 @@ Here's a short explanation how to use `umurmur`:
 
     + You can also change user and group id for the user running umurmur
     ```sh
-    docker run -ti -p 64738:64738 -p 64738:64738/udp -e UMURMUR_UID=500 -e UMURMUR_GUID=1000 umurmur:0.1
+    docker run -ti -p 64738:64738 -p 64738:64738/udp -e APP_UID=500 -e APP_GUID=1000 umurmur:0.1
     ```
 
     + Provide your own let's encrypt certificate files

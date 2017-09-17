@@ -5,6 +5,11 @@ printf "\n#########################"
 printf "\n##  Start Custom Push  ##"
 printf "\n#########################"
 
+if [[ ! -f hooks/names ]]; then
+	printf "\nNothing to Push\n"
+	exit 0
+fi
+
 while read line  
 do  
   printf "\nPushing %s...\n" "$line"
@@ -15,3 +20,4 @@ do
     docker push "${REPO_NAME}:latest" || (printf "\nCannot push %s" "${REPO_NAME}:latest"; exit 1)
 	fi
 done < hooks/names
+rm hooks/names

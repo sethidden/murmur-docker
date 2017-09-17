@@ -1,51 +1,63 @@
 #!/bin/sh
 
 CFG_DIR="/etc/umurmur/"
-START_CMD="$@"
 
 # Copy all templates to /etc/umurmur/, evaluate them and delete the template files
 processJ2Templates() {
+	printf "\nProcessing configuration from templates..."
 	cp -R /templates/* "$CFG_DIR"
 	for f in $(find "$CFG_DIR" -type f -name "*.j2"); do
-	  echo -e "Evaluating template\n\tSource: $f\n\tDest: ${f%.j2}"
-	  j2 $f > ${f%.j2}
-	  rm -f $f
+	  printf "\n  %s\n  >> %s" "$f" "${f%.j2}"
+	  j2 "$f" > "${f%.j2}"
+	  rm -f "$f"
 	done
 }
 
 # Run each shell script in /docker-entrypoint-init.d/
 runInitScripts() {
-	for f in /docker-entrypoint-init.d/*; do
+	printf "\nRunning scripts in /docker-entrypoint-init.d/ ..."
+	for f in "/docker-entrypoint-init.d"; do
 	  case "$f" in
-	      *.sh)  echo "Running $f"; . "$f" ;;
-	      *)     echo "Ignoring $f" ;;
+	      *.sh)  printf "\n  Running %s" 	"$f"	; . "$f" 	;;
+	      *)     printf "\n  Ignoring %s" 	"$f" 						;;
 	  esac
-	  echo
 	done	
 }
 
 # Ensure permissions and ids are correct
 updateIDs() {
+	printf "\nUpdating IDs..."
 	# Reset User UID if needed
-	if [ $(id -u "${UMURMUR_USER}") -ne "${UMURMUR_UID}" ] && ! usermod -u "${UMURMUR_UID}" "${UMURMUR_USER}"; then
-		printf "\nCannot change %s UID to %s" "${UMURMUR_USER}" "${UMURMUR_UID}"
+	if [ "$(id -u "${APP_USER}")" -ne "${APP_UID}" ] && ! usermod -u "${APP_UID}" "${APP_USER}"; then
+		printf "\nCannot change %s UID to %s" "${APP_USER}" "${APP_UID}"
 		exit 1
 	fi
 	# Reset Group GUID if needed
-	if [ $(id -g "${UMURMUR_USER}") -ne "${UMURMUR_GUID}" ] && ! groupmod -g "${UMURMUR_GUID}" "${UMURMUR_GROUP}"; then
-		printf "\nCannot change %s GUID to %s" "${UMURMUR_GROUP}" "${UMURMUR_GUID}"
+	if [ "$(id -g "${APP_USER}")" -ne "${APP_GUID}" ] && ! groupmod -g "${APP_GUID}" "${APP_GROUP}"; then
+		printf "\nCannot change %s GUID to %s" "${APP_GROUP}" "${APP_GUID}"
 		exit 2
 	fi
 	# Reset permissions on CFG_DIR files
-	find "$CFG_DIR" -maxdepth 1 -exec chown "${UMURMUR_USER}":"${UMURMUR_GROUP}" {} \;
+	find "$CFG_DIR" -maxdepth 1 -exec chown "${APP_USER}":"${APP_GROUP}" {} \;
 	return 0
 }
 
-## INIT -------------------------------
-processJ2Templates
-runInitScripts
-updateIDs
+# ## INIT -------------------------------
+# processJ2Templates
+# runInitScripts
+# updateIDs
 
 ## EXECUTION --------------------------
-cd "$CFG_DIR"
-su -c "$START_CMD" "${UMURMUR_USER}"
+# cd "$CFG_DIR"
+# su -c "$START_CMD" "${APP_USER}"
+
+if processJ2Templates && runInitScripts && updateIDs; then
+	printf "\nInit done!\n\n"
+	if [ "$(id -u)" = '0' ]; then
+		if [ "$1" = '/usr/local/bin/umurmurd' ]; then
+			launch "$@"
+		else
+			exec "$@"
+		fi
+	fi
+fi
