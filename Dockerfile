@@ -1,4 +1,4 @@
-FROM gp3t1/alpine:0.7.1
+FROM gp3t1/alpine:0.7.2
 
 # UMURMUR BUILD SETTINGS
 ARG BUILD_UMURMUR_MONITOR="On"
@@ -13,14 +13,11 @@ LABEL maintainer="Jeremy PETIT <jeremy.petit@gmail.com>" \
 ENV APP_USER="umurmur" 		APP_UID=500
 ENV	APP_GROUP="$APP_USER"	APP_GUID=501
 
-## MURMUR BASE CONFIG (see /etc/umurmur/umurmurd.conf)
+## MURMUR BASE CONFIG
 ENV LISTEN4="" \
 		LISTEN6=""
-ENV PASSWORD="" \
-		ADMIN_PASSWORD=""
-# TODO: manage cert through secrets too
-ENV CERT_NAME="fullchain.pem" \
-		KEY_NAME="privkey.pem"
+ENV u_password="" \
+		u_adminpassword=""
 ENV SHOW_IPS=true \
 		ENABLE_BAN=true \
 		SYNC_BAN=true \
@@ -35,8 +32,8 @@ ENV MOTD="Welcome to umurmur server$(hostname -f)!"
 ## EXPOSE UMURMUR DEFAULT PORT
 EXPOSE 64738 64738/udp
 
-## VOLUMES FOR LOGS & CERTIFICATES
-VOLUME ["/var/log", "/etc/umurmur/cert"]
+## VOLUMES
+VOLUME ["/var/log/umurmur", "/var/lib/umurmur"]
 
 ## INSTALL USR/GRP TOOLS, BUILD TOOLS, PIP & J2
 #  CREATE USER/GROUP
@@ -66,7 +63,7 @@ RUN  setAppUser \
 	&& make \
 	&& make install \
 	&& rm -rf /tmp/umurmur* \
-	&& mv /usr/local/etc/umurmur.conf /etc/umurmur/umurmurd.conf.default \
+	&& mv /usr/local/etc/umurmur.conf /etc/umurmurd.conf.default \
 	&& apk del build-dependencies
 
 # COPY SCRIPTS & TEMPLATES
@@ -75,11 +72,8 @@ COPY templates/* /templates/
 
 # EXTRA INIT SCRIPTS & BAN FILE
 RUN mkdir /docker-entrypoint-init.d
-RUN touch /etc/umurmur/bans
 
-WORKDIR "/etc/umurmur/"
-
-CMD ["/usr/local/bin/umurmurd","-d","-c","/etc/umurmur/umurmurd.conf"]
+CMD ["/usr/local/bin/umurmurd","-d","-c","/etc/umurmurd.conf"]
 ENTRYPOINT ["/usr/bin/entrypoint"]
 
 # HEALTHCHECK --interval=1m \

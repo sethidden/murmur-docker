@@ -1,37 +1,34 @@
 ## NETWORK ----------------------------
 # bindport = 64738;
 # bindport6 = 64738;
-{% if LISTEN4 %}bindaddr = "{{ LISTEN4 }}";
-{% else %}# bindaddr = "INADDR_ANY"; {% endif %}
-{% if LISTEN6 %}bindaddr6 = "{{ LISTEN6 }}";
-{% else %}# bindaddr6 = "INADDR_ANY"; {% endif %}
+{% if LISTEN4 %}bindaddr = "{{ LISTEN4 }}";{% else %}# bindaddr = "INADDR_ANY"; {% endif %}
+{% if LISTEN6 %}bindaddr6 = "{{ LISTEN6 }}";{% else %}# bindaddr6 = "INADDR_ANY"; {% endif %}
 
 ## PASSWORD ---------------------------
-password = "{{ PASSWORD }}";
-admin_password = "{{ ADMIN_PASSWORD }}";   # Set to enable admin functionality.
+password = "{{ u_password }}";
+admin_password = "{{ u_adminpassword }}";   # Set to enable admin functionality.
 
 ## SSL --------------------------------
-certificate = "/etc/umurmur/cert/{{ CERT_NAME }}";
-private_key = "/etc/umurmur/cert/{{ KEY_NAME }}";
-# ca_path = "/etc/umurmur/cert/";  # Location of CA certificate. Relevant for OpenSSL only.
+certificate = "{{ CER_DIR }}/{{ CER_NAME }}";
+private_key = "{{ CER_DIR }}/{{ KEY_NAME }}";
+# ca_path = "{{ CER_DIR }}/";  # Location of CA certificate. Relevant for OpenSSL only.
 
 ## LOG --------------------------------
 # Log to file option. Default is logging to syslog.
 # umurmurd will close and reopen the logfile if SIGHUP is received.
-{% if LOGGING %}logfile = "/var/log/umurmurd.log";
-{% else %}# logfile = "/var/log/umurmurd.log";{% endif %}
+{% if LOGGING %}logfile = "{{ LOGS_VOL }}/umurmurd.log";{% else %}# logfile = "{{ LOGS_VOL }}/umurmurd.log";{% endif %}
 
 ## USERS ------------------------------
-username = "umurmur";
-groupname = "umurmur";
+username = "{{ APP_USER }}";
+groupname = "{{ APP_GROUP }}";
 max_users = {{ MAX_USERS }};
-show_addresses = {{ SHOW_IPS }};     # Whether to show client's IP addresses under user information
+show_addresses = {{ SHOW_IPS }};  # Whether to show client's IP addresses under user information
 
 ## BAN --------------------------------
-ban_length = {{ BAN_SECONDS }};           # Length in seconds for a ban. Default is 0. 0 = forever.
-enable_ban = {{ ENABLE_BAN }};        # Default is false
-banfile = "/etc/umurmur/bans";  # File to save bans to. Default is to not save bans to file.
-sync_banfile = {{ SYNC_BAN }};      # Keep banfile synced. Default is false, which means it is saved to at shutdown only.
+ban_length = {{ BAN_SECONDS }};   # Length in seconds for a ban. Default is 0. 0 = forever.
+enable_ban = {{ ENABLE_BAN }};    # Default is false
+banfile = "{{ BAN_FILE }}";       # File to save bans to. Default is to not save bans to file.
+sync_banfile = {{ SYNC_BAN }};    # Keep banfile synced. Default is false, which means it is saved to at shutdown only.
 
 ## AUDIO ------------------------------
 max_bandwidth = {{ MAX_BANDWIDTH }};
@@ -42,37 +39,4 @@ welcometext = "{{ MOTD }}";
 allow_textmessage = {{ ALLOW_TEXT }};
 
 ## CHANNELS ---------------------------
-# Channel tree definition:
-# Root channel must always be defined first.
-# If a channel has a parent, the parent must be defined before the child channel(s).
-channels = ( {
-    name = "Root";
-    parent = "";
-    description = "Root channel. No entry.";
-  },
-  {
-    name = "Chat";
-    parent = "Root";
-    description = "Chat channel";
-  },
-  {
-    name = "Games";
-    parent = "Root";
-    description = "Games channel";
-    noenter = true;
-  }
-);
-# The channel in which users will appear in when connecting.
-# Note that default channel can't have 'noenter = true' or password set
-default_channel = "Chat";
-# Channel links configuration.
-# channel_links = ( {
-#          source = "Lobby";
-#          destination = "Red team";
-#          },
-#          {
-#          source = "Lobby";
-#          destination = "Blue team";
-#          }
-# );
-
+{% if CHANNELS_CONFIG %}{% include CHANNELS_CONFIG %}{% endif %}

@@ -1,15 +1,60 @@
 #!/bin/sh
 
-CFG_DIR="/etc/umurmur/"
+# Exported as volumes
+export LOGS_VOL="/var/log/umurmur"
+DATA_VOL="/var/lib/umurmur"
+export BAN_FILE="${DATA_VOL}/bans"
+
+# Internal files
+CFG_FILE="/etc/umurmurd.conf"
+export CHANNELS_CONFIG="/etc/umurmurd.channels"
+export CER_DIR="/umurmur-cert"
+export CER_NAME="fullchain.pem"
+export KEY_NAME="privkey.pem"
+
+
+
+printPaths(){
+	printf "\nLogs            \n\t* log file            @\t%s" "${LOGS_VOL}/umurmurd.log"
+	printf "\nConfiguration   \n\t* ban file            @\t%s" "${BAN_FILE}"
+	printf                   "\n\t* config file         @\t%s" "${CFG_FILE}"
+	printf                   "\n\t* channel config      @\t%s" "${CHANNELS_CONFIG}"
+	printf "\nCertificate     \n\t* certificate file    @\t%s" "${CER_DIR}/${CER_NAME}"
+	printf                   "\n\t* key file            @\t%s" "${CER_DIR}/${KEY_NAME}"
+}
+
+retrieveSecrets(){
+	printf "\n[SECRETS] Looking for umurmur secrets..."
+	if PASS="$(readSecret u_password)"; then
+		printf "\n  u_password found in secrets or ENV"
+		export u_password="$PASS"
+	else
+		printf "\n  u_password not found in secrets or ENV"
+	fi
+	if ADMINPASS="$(readSecret u_adminpassword)"; then
+		printf "\n  u_adminpassword found in secrets or ENV"
+		export u_adminpassword="$ADMINPASS"
+	else
+		printf "\n  u_adminpassword not found in secrets or ENV"
+	fi
+	if [ -f "${CHANNELS_CONFIG}" ]; then
+		printf "\n[SECRETS] Channels configuration found in %s" "${CHANNELS_CONFIG}"
+	else
+		printf "\n[SECRETS] no channels configuration provided in %s. Init with defaults:\n" "${CHANNELS_CONFIG}"
+		cp /templates/umurmurd.channels "${CHANNELS_CONFIG}" && cat "${CHANNELS_CONFIG}" || ( echo "[SECRETS] Cannot init channels config!"; return 1)
+	fi
+	printf "\n[SECRETS] Secrets retrieved"
+}
 
 # Copy all templates to /etc/umurmur/, evaluate them and delete the template files
 processJ2Templates() {
 	printf "\nProcessing configuration from templates..."
-	cp -R /templates/* "$CFG_DIR"
-	for f in $(find "$CFG_DIR" -type f -name "*.j2"); do
-	  printf "\n  %s\n  >> %s" "$f" "${f%.j2}"
-	  j2 "$f" > "${f%.j2}"
-	  rm -f "$f"
+	cp -R "/templates/umurmurd.conf.j2" "/etc/"
+	for f in $(find "/etc/" -type f -name "*.j2"); do
+		target="${f%.j2}"
+		printf "\n  %s\n  >> %s" "$f" "$target"
+		[ -f "$target" ] && mv "$target" "$target.$(date +%y%m%d.%H%M%S)"
+	  j2 "$f" > "$target" && rm -f "$f"
 	done
 }
 
@@ -19,39 +64,39 @@ runInitScripts() {
 	for f in "/docker-entrypoint-init.d"; do
 	  case "$f" in
 	      *.sh)  printf "\n  Running %s" 	"$f"	; . "$f" 	;;
-	      *)     printf "\n  Ignoring %s" 	"$f" 						;;
+	      *)     printf "\n  Ignoring %s" "$f" 						;;
 	  esac
 	done	
 }
 
-# Ensure permissions and ids are correct
-updateIDs() {
-	printf "\nUpdating IDs..."
-	# Reset User UID if needed
-	if [ "$(id -u "${APP_USER}")" -ne "${APP_UID}" ] && ! usermod -u "${APP_UID}" "${APP_USER}"; then
-		printf "\nCannot change %s UID to %s" "${APP_USER}" "${APP_UID}"
-		exit 1
-	fi
-	# Reset Group GUID if needed
-	if [ "$(id -g "${APP_USER}")" -ne "${APP_GUID}" ] && ! groupmod -g "${APP_GUID}" "${APP_GROUP}"; then
-		printf "\nCannot change %s GUID to %s" "${APP_GROUP}" "${APP_GUID}"
-		exit 2
-	fi
-	# Reset permissions on CFG_DIR files
-	find "$CFG_DIR" -maxdepth 1 -exec chown "${APP_USER}":"${APP_GROUP}" {} \;
-	return 0
+# Set Permissions
+checkPaths() {
+	# CONFIG FILE
+	chown "${APP_USER}":"${APP_GROUP}" "${CFG_FILE}" && \
+	chmod 440 "${CFG_FILE}" && \
+	printf "\n[PERM] %s" "$(ls -l ${CFG_FILE})" || return 1
+	# BAN FILE
+	[ -f "$BAN_FILE" ] || touch "$BAN_FILE"
+	chown "${APP_USER}":"${APP_GROUP}" "$BAN_FILE" && \
+	chmod 440 "$BAN_FILE" && \
+	printf "\n[PERM] %s" "$(ls -l ${BAN_FILE})" || return 2
+	# LOGS
+	[ -d "$LOGS_VOL" ] || mkdir -p "$LOGS_VOL"
+	chown -R "${APP_USER}":"${APP_GROUP}" "$LOGS_VOL" && \
+	chmod -R 770 "$LOGS_VOL" && \
+	printf "\n[PERM] %s" "$(ls -ld ${LOGS_VOL})" || return 3
+	# CERTIFICATE
+	[ -d "$CER_DIR" ] || mkdir -p "$CER_DIR"
+	chown -R "${APP_USER}":"${APP_GROUP}" "$CER_DIR" && \
+	chmod 700 "$CER_DIR" && \
+	( [ ! -f "$CER_DIR/$CER_NAME" ] || chmod 500 "$CER_DIR/$CER_NAME") && \
+	( [ ! -f "$CER_DIR/$KEY_NAME" ] || chmod 500 "$CER_DIR/$KEY_NAME") && \
+	printf "\n[PERM] %s" "$(ls -l ${LOGS_VOL})" || return 4
 }
 
-# ## INIT -------------------------------
-# processJ2Templates
-# runInitScripts
-# updateIDs
+printPaths
 
-## EXECUTION --------------------------
-# cd "$CFG_DIR"
-# su -c "$START_CMD" "${APP_USER}"
-
-if processJ2Templates && runInitScripts && updateIDs; then
+if retrieveSecrets && processJ2Templates && runInitScripts && checkPaths; then
 	printf "\nInit done!\n\n"
 	if [ "$(id -u)" = '0' ]; then
 		if [ "$1" = '/usr/local/bin/umurmurd' ]; then
@@ -60,4 +105,7 @@ if processJ2Templates && runInitScripts && updateIDs; then
 			exec "$@"
 		fi
 	fi
+else
+	printf "\nInit failed!\n"
+	exit 1
 fi
