@@ -1,4 +1,4 @@
-FROM gp3t1/alpine:0.7.2
+FROM gp3t1/alpine:0.7.3
 
 # UMURMUR BUILD SETTINGS
 ARG BUILD_UMURMUR_MONITOR="On"
@@ -37,15 +37,13 @@ VOLUME ["/var/log/umurmur", "/var/lib/umurmur"]
 
 ## INSTALL USR/GRP TOOLS, BUILD TOOLS, PIP & J2
 #  CREATE USER/GROUP
-#  INSTALL MURMUR (apk add --no-cache umurmur)
+#  INSTALL MURMUR
 RUN  apk --no-cache add \
 			libconfig \
-			mbedtls-dev \
-			ncurses-dev \
-	 		openssl-dev \
-			protobuf-c-dev \
-			py-pip
-RUN  setAppUser \
+			openssl \
+			protobuf-c \
+			py2-pip \
+	&&  setAppUser \
 	&& apk --no-cache add -t build-dependencies \
 			cmake \
 			gcc \
@@ -53,7 +51,9 @@ RUN  setAppUser \
 			libc-dev \
 			libconfig-dev \
 			make \
-			shadow \ 
+			ncurses-dev \
+			openssl-dev \
+			protobuf-c-dev \
 	&& pip install --upgrade pip \
 	&& pip install --no-cache j2cli[yaml] \
 	&& git clone --recursive -b "${VERSION}" "https://github.com/umurmur/umurmur.git" "/tmp/umurmur-src" \
@@ -64,7 +64,7 @@ RUN  setAppUser \
 	&& make install \
 	&& rm -rf /tmp/umurmur* \
 	&& mv /usr/local/etc/umurmur.conf /etc/umurmurd.conf.default \
-	&& apk del build-dependencies
+	&& apk --no-cache del build-dependencies
 
 # COPY SCRIPTS & TEMPLATES
 COPY bin/* /usr/bin/
