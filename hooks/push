@@ -14,10 +14,10 @@ while read line
 do  
   printf "\nPushing %s...\n" "$line"
 	docker push "$line" || (printf "\nCannot push %s" "$line"; exit 1)
-	if [[ "$SOURCE_BRANCH" =~ ^[0-9.]+$ ]] && [[ "$line" =~ .*-full ]]; then
-		docker tag "$line" "${REPO_NAME}:latest" || (printf "\nCannot tag %s as %s" "$line" "${REPO_NAME}:latest"; exit 1)
-		printf "\nPushing %s as %s...\n" "$line" "${REPO_NAME}:latest"
-    docker push "${REPO_NAME}:latest" || (printf "\nCannot push %s" "${REPO_NAME}:latest"; exit 1)
-	fi
+	# if [[ "$SOURCE_BRANCH" =~ ^[0-9.]+$ ]] && [[ "$line" =~ .*-full ]]; then
+	# 	docker tag "$line" "${REPO_NAME}:latest" || (printf "\nCannot tag %s as %s" "$line" "${REPO_NAME}:latest"; exit 1)
+	# 	printf "\nPushing %s as %s...\n" "$line" "${REPO_NAME}:latest"
+  #   docker push "${REPO_NAME}:latest" || (printf "\nCannot push %s" "${REPO_NAME}:latest"; exit 1)
+	# fi
 done < hooks/names
 rm hooks/names

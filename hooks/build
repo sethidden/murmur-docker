@@ -28,16 +28,33 @@ buildUmurmur(){
 	BUILD_NUMURMON="$3"
 	BUILD_UMURMUR_MONITOR="$4"
 	NAME="$5"
-	
+
+	if [ "$BUILD_NUMURMON" = "On" ] && [ "$BUILD_UMURMUR_MONITOR" = "On" ]; then
+		tags="-t $NAME -t $NAME-full -t $NAME-latest"
+		NAME="$NAME-full"
+	else
+		[ "$BUILD_NUMURMON" = "On" ] \
+			&& NAME="$NAME-numurmon" && tags="-t $NAME-numurmon"
+		[ "$BUILD_UMURMUR_MONITOR" = "On" ] \
+			&& NAME="$NAME-umonitor" && tags="-t $NAME-umonitor"
+		[ "$BUILD_NUMURMON" = "On" ] && [ "$BUILD_UMURMUR_MONITOR" = "On" ] \
+			&& NAME="$NAME-light" && tags="-t $NAME-light"
+	fi
 	printf "\n\n## Building %s ##\n" "$NAME"
-	docker build --build-arg VERSION="$UMURMUR_VERSION" \
-		--build-arg SSL="$SSL" \
-		--build-arg BUILD_NUMURMON="$BUILD_NUMURMON" --build-arg BUILD_UMURMUR_MONITOR="$BUILD_UMURMUR_MONITOR" \
-		-t "$NAME" . && echo "$NAME" >> hooks/names || (printf "\nCannot build %s" "$NAME"; exit 1)
+
+	if docker build $tags --build-arg VERSION="$UMURMUR_VERSION" --build-arg SSL="$SSL" --build-arg BUILD_NUMURMON="$BUILD_NUMURMON" --build-arg BUILD_UMURMUR_MONITOR="$BUILD_UMURMUR_MONITOR" . ; then
+		echo "$NAME" >> hooks/names
+	else
+		printf "\nCannot build %s" "$NAME"
+		exit 1
+	fi
 }
 
 echo "" > hooks/names
-buildUmurmur "$VERSION" "openssl" "Off" "Off" "$REPO_NAME:$SOURCE_BRANCH-$VERSION"
-buildUmurmur "$VERSION" "openssl" "On" 	"Off" "$REPO_NAME:$SOURCE_BRANCH-$VERSION-numurmon"
-buildUmurmur "$VERSION" "openssl" "Off" "On" 	"$REPO_NAME:$SOURCE_BRANCH-$VERSION-monitor"
-buildUmurmur "$VERSION" "openssl" "On" 	"On" 	"$REPO_NAME:$SOURCE_BRANCH-$VERSION-full"
+for crypto in "openssl"; do
+	for b_numurmon in "On" "Off"; do
+		for b_umonitor in "On" "Off"; do
+			buildUmurmur "$VERSION" $crypto $b_numurmon $b_umonitor "$REPO_NAME:$SOURCE_BRANCH-$VERSION"
+		done
+	done
+done
