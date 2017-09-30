@@ -17,10 +17,18 @@ else
 fi
 printf "\n-- SOURCE_BRANCH	: %s" 				"$SOURCE_BRANCH"
 printf "\n-- SOURCE_COMMIT	: %s (%s)" 		"$SOURCE_COMMIT" 	"$COMMIT_MSG"
-printf "\n-- REPO_NAME 			: %s" 				"$REPO_NAME"
 printf "\n-- IMAGE_NAME 		: %s (%s)" 		"$IMAGE_NAME" 		"$CACHE_TAG"
 printf "\n-- UMURMUR VERSION: %s" 				"$VERSION"
 printf "\n--------------------------------\n"
+
+# tells if it should be latest image
+latest(){
+	if echo "$SOURCE_BRANCH" | grep -Eq "^[0-9.]+$" ; then
+		# only build latest image if it's built from numerical tag
+		return 0
+	fi
+	return 1
+}
 
 buildUmurmur(){
 	UMURMUR_VERSION="$1"
@@ -30,8 +38,12 @@ buildUmurmur(){
 	NAME="$5"
 
 	if [ "$BUILD_NUMURMON" = "On" ] && [ "$BUILD_UMURMUR_MONITOR" = "On" ]; then
-		tags="-t $NAME -t $NAME-full -t $(echo "$NAME" | awk -F':' '{ print $1 }'):latest"
+		tags="-t $DOCKER_REPO:$SOURCE_BRANCH -t $NAME -t $NAME-full"
 		NAME="$NAME-full"
+		if latest; then
+			# add tag for latest
+			tags="$tags -t $DOCKER_REPO:latest"
+		fi
 	else
 		[ "$BUILD_NUMURMON" = "On" ] \
 			&& NAME="$NAME-numurmon" && tags="-t $NAME"
@@ -43,7 +55,8 @@ buildUmurmur(){
 
 	printf "\n\n## Building %s ##\n" "$NAME"
 	if docker build $tags --build-arg VERSION="$UMURMUR_VERSION" --build-arg SSL="$SSL" --build-arg BUILD_NUMURMON="$BUILD_NUMURMON" --build-arg BUILD_UMURMUR_MONITOR="$BUILD_UMURMUR_MONITOR" . ; then
-		echo "$NAME" >> hooks/names
+		# mark all tags of this image as pushable
+		docker image inspect -f '{{join .RepoTags "\n"}}' "$(docker images -q $NAME)" >> hooks/names
 	else
 		printf "\nCannot build %s" "$NAME"
 		exit 1
@@ -54,7 +67,7 @@ echo "" > hooks/names
 for crypto in "openssl"; do
 	for b_numurmon in "On" "Off"; do
 		for b_umonitor in "On" "Off"; do
-			buildUmurmur "$VERSION" $crypto $b_numurmon $b_umonitor "$REPO_NAME:$SOURCE_BRANCH-$VERSION"
+			buildUmurmur "$VERSION" $crypto $b_numurmon $b_umonitor "$DOCKER_REPO:$SOURCE_BRANCH-$VERSION"
 		done
 	done
 done
