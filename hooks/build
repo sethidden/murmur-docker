@@ -34,11 +34,11 @@ buildUmurmur(){
 		NAME="$NAME-full"
 	else
 		[ "$BUILD_NUMURMON" = "On" ] \
-			&& NAME="$NAME-numurmon" && tags="-t $NAME-numurmon"
+			&& NAME="$NAME-numurmon" && tags="-t $NAME"
 		[ "$BUILD_UMURMUR_MONITOR" = "On" ] \
-			&& NAME="$NAME-umonitor" && tags="-t $NAME-umonitor"
-		[ "$BUILD_NUMURMON" = "On" ] && [ "$BUILD_UMURMUR_MONITOR" = "On" ] \
-			&& NAME="$NAME-light" && tags="-t $NAME-light"
+			&& NAME="$NAME-umonitor" && tags="-t $NAME"
+		[ "$BUILD_NUMURMON" = "Off" ] && [ "$BUILD_UMURMUR_MONITOR" = "Off" ] \
+			&& NAME="$NAME-light" && tags="-t $NAME"
 	fi
 
 	printf "\n\n## Building %s ##\n" "$NAME"
