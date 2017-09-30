@@ -30,7 +30,7 @@ buildUmurmur(){
 	NAME="$5"
 
 	if [ "$BUILD_NUMURMON" = "On" ] && [ "$BUILD_UMURMUR_MONITOR" = "On" ]; then
-		tags="-t $NAME -t $NAME-full -t $NAME-latest"
+		tags="-t \"$NAME\" -t \"$NAME-full\" -t \"$(echo "$NAME" | awk -F':' '{ print $1 }'):latest\""
 		NAME="$NAME-full"
 	else
 		[ "$BUILD_NUMURMON" = "On" ] \
@@ -40,8 +40,8 @@ buildUmurmur(){
 		[ "$BUILD_NUMURMON" = "On" ] && [ "$BUILD_UMURMUR_MONITOR" = "On" ] \
 			&& NAME="$NAME-light" && tags="-t $NAME-light"
 	fi
-	printf "\n\n## Building %s ##\n" "$NAME"
 
+	printf "\n\n## Building %s ##\n" "$NAME"
 	if docker build $tags --build-arg VERSION="$UMURMUR_VERSION" --build-arg SSL="$SSL" --build-arg BUILD_NUMURMON="$BUILD_NUMURMON" --build-arg BUILD_UMURMUR_MONITOR="$BUILD_UMURMUR_MONITOR" . ; then
 		echo "$NAME" >> hooks/names
 	else
