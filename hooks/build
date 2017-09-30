@@ -30,7 +30,7 @@ buildUmurmur(){
 	NAME="$5"
 
 	if [ "$BUILD_NUMURMON" = "On" ] && [ "$BUILD_UMURMUR_MONITOR" = "On" ]; then
-		tags="-t \"$NAME\" -t \"$NAME-full\" -t \"$(echo "$NAME" | awk -F':' '{ print $1 }'):latest\""
+		tags="-t $NAME -t $NAME-full -t $(echo "$NAME" | awk -F':' '{ print $1 }'):latest"
 		NAME="$NAME-full"
 	else
 		[ "$BUILD_NUMURMON" = "On" ] \
