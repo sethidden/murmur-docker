@@ -1,7 +1,17 @@
 # umurmur
 
-Work in progress. This isn't published anywhere yet. If you're looking for an Umurmur docker image that works on non-x86 CPU architectures (e.g. Raspberry Pi) clone this repo and run `docker build .`, `docker image ls` (look for newly built image), `docker tag [newly built image id] umurmur`, then use `umurmur` image in your docker-compose (or `docker run umurmur`).
+umurmur dockerization that supports many CPU architectures e.g. amd32v7 for Raspberry Pi and others. For supported architectures, see [https://hub.docker.com/r/sethidden/umurmur/tags](OS/ARCH column on dockerhub tags)
 
+## Custom umurmur.conf/certs
+To make the container use your umurmur.conf, create a volume that points to the `/etc/umurmur/` folder in the container. By default, the `/etc/umurmur/`folder contains these files you can override with your volume:
+* umurmur.conf
+* key.key (gets auto-created after first launch)
+* cert.crt (gets auto-created after first launch)
+
+## docker run
+```sh
+docker run -ti -p 64738:64738 -p 64738:64738/udp -v /home/user_on_host_machine/umurmur/:/etc/umurmur/ sethidden/umurmur:latest
+```
 ## docker-compose
 
 ```yaml
@@ -15,7 +25,7 @@ services:
         - '64738:64738'
         - '64738:64738/udp'
     volumes: 
-      - '/media/umurmur:/etc/umurmur'
+      - '/home/user_on_host_machine/umurmur/:/etc/umurmur/'
 ```
 
 ## Acknowledgements
