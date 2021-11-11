@@ -2,6 +2,22 @@
 
 Work in progress. This isn't published anywhere yet. If you're looking for an Umurmur docker image that works on non-x86 CPU architectures (e.g. Raspberry Pi) clone this repo and run `docker build .`, `docker image ls` (look for newly built image), `docker tag [newly built image id] umurmur`, then use `umurmur` image in your docker-compose (or `docker run umurmur`).
 
+## docker-compose
+
+```docker
+version: "3.5"
+services:
+  umurmur:
+    image: sethidden/umurmur
+    container_name: umurmur
+    restart: always
+    ports:
+        - '64738:64738'
+        - '64738:64738/udp'
+    volumes: 
+      - '/media/umurmur:/etc/umurmur'
+```
+
 ## Acknowledgements
 
 This is a fork of Jeremy Petit's work on https://github.com/gp3t1/umurmur/
