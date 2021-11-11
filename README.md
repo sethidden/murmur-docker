@@ -1,6 +1,6 @@
 # umurmur
 
-umurmur dockerization that supports many CPU architectures e.g. amd32v7 for Raspberry Pi and others. For supported architectures, see [https://hub.docker.com/r/sethidden/umurmur/tags](OS/ARCH column on dockerhub tags)
+umurmur dockerization that supports many CPU architectures e.g. amd32v7 for Raspberry Pi and others. For supported architectures, see (https://hub.docker.com/r/sethidden/umurmur/tags)[OS/ARCH column on dockerhub tags]
 
 ## Custom umurmur.conf/certs
 To make the container use your umurmur.conf, create a volume that points to the `/etc/umurmur/` folder in the container. By default, the `/etc/umurmur/`folder contains these files you can override with your volume:
