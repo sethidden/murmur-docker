@@ -37,4 +37,4 @@ RUN  apk --no-cache add \
 	&& mv /usr/local/etc/umurmur.conf /etc/umurmurd.conf \
 	&& apk --no-cache del build-dependencies
 
-CMD ["/usr/local/bin/umurmurd","-d","-c","/etc/umurmurd.conf"]
+CMD ["/usr/local/bin/umurmurd","-d"]
