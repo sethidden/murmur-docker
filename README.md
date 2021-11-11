@@ -4,7 +4,7 @@ Work in progress. This isn't published anywhere yet. If you're looking for an Um
 
 ## docker-compose
 
-```docker
+```yaml
 version: "3.5"
 services:
   umurmur:
