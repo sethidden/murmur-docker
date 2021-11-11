@@ -8,9 +8,12 @@ To make the container use your umurmur.conf, create a volume that points to the 
 * key.key (gets auto-created after first launch)
 * cert.crt (gets auto-created after first launch)
 
+The below two examples include the volume (-v) binds that allow you to override the umurmur.conf file. Just put your own custom file into the volume folder on the host side.
+
 ## docker run
 ```sh
-docker run -ti -p 64738:64738 -p 64738:64738/udp -v /home/user_on_host_machine/umurmur/:/etc/umurmur/ sethidden/umurmur:latest
+docker run -ti -p 64738:64738 -p 64738:64738/udp \
+  -v /home/user_on_host_machine/umurmur/:/etc/umurmur/ sethidden/umurmur:latest
 ```
 ## docker-compose
 
