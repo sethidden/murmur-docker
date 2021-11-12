@@ -33,7 +33,7 @@ services:
 
 ## Acknowledgements
 
-This is a fork of Jeremy Petit's work on https://github.com/gp3t1/umurmur/
+This is a fork of Jeremy Petit's work on https://github.com/gp3t1/umurmur-docker/
 
 ## License
 
