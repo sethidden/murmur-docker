@@ -2,8 +2,8 @@
 
 umurmur dockerization that supports many CPU architectures e.g. amd32v7 for Raspberry Pi and others. For supported architectures, see [OS/ARCH column in dockerhub tags](https://hub.docker.com/r/sethidden/umurmur/tags)
 
-## Custom umurmur.conf/certs
-To make the container use your umurmur.conf, create a volume that points to the `/etc/umurmur/` folder in the container. By default, the `/etc/umurmur/`folder contains these files you can override with your volume:
+## Custom umurmur.conf and certificates
+To make the container use your custom non-default `umurmur.conf`, create a volume that points to the `/etc/umurmur/` folder in the container. By default, the `/etc/umurmur/`folder contains these files that you can override with your volume:
 * umurmur.conf
 * key.key (gets auto-created after first launch)
 * cert.crt (gets auto-created after first launch)
