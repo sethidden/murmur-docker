@@ -1,4 +1,4 @@
-# umurmur
+# umurmur-docker
 
 umurmur dockerization that supports many CPU architectures e.g. amd32v7 for Raspberry Pi and others. For supported architectures, see [OS/ARCH column in dockerhub tags](https://hub.docker.com/r/sethidden/umurmur/tags)
 
