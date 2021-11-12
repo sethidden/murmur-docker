@@ -1,16 +1,19 @@
-# umurmur
+# umurmur-docker
 
-umurmur dockerization that supports many CPU architectures e.g. amd32v7 for Raspberry Pi and others. For supported architectures, see (https://hub.docker.com/r/sethidden/umurmur/tags)[OS/ARCH column on dockerhub tags]
+umurmur dockerization that supports many CPU architectures e.g. amd32v7 for Raspberry Pi and others. For supported architectures, see [OS/ARCH column in dockerhub tags](https://hub.docker.com/r/sethidden/umurmur/tags)
 
-## Custom umurmur.conf/certs
-To make the container use your umurmurd.conf, create a volume that points to the `/etc/umurmur/` folder in the container. By default, the `/etc/umurmur/`folder contains these files you can override with your volume:
+## Custom umurmurd.conf and certificates
+To make the container use your custom non-default `umurmurd.conf`, create a volume that points to the `/etc/umurmur/` folder in the container. By default, the `/etc/umurmur/`folder contains these files that you can override with your volume:
 * umurmurd.conf
 * key.key (gets auto-created after first launch)
 * cert.crt (gets auto-created after first launch)
 
+The below two examples include the volume (-v) binds that allow you to override the umurmurd.conf file. Just put your own custom file into the volume folder on the host side.
+
 ## docker run
 ```sh
-docker run -ti -p 64738:64738 -p 64738:64738/udp -v /home/user_on_host_machine/umurmur/:/etc/umurmur/ sethidden/umurmur:latest
+docker run -ti -p 64738:64738 -p 64738:64738/udp \
+  -v /home/user_on_host_machine/umurmur/:/etc/umurmur/ sethidden/umurmur:latest
 ```
 ## docker-compose
 
@@ -30,7 +33,7 @@ services:
 
 ## Acknowledgements
 
-This is a fork of Jeremy Petit's work on https://github.com/gp3t1/umurmur/
+This is a fork of Jeremy Petit's work on https://github.com/gp3t1/umurmur-docker/
 
 ## License
 
