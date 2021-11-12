@@ -1,3 +1,4 @@
+# currently alpine:edge supports more architectures than alpine:latest
 FROM alpine:edge
 
 # shamelessly stolen from, or as we call it in open source "forked":
