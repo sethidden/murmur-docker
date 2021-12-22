@@ -30,21 +30,5 @@ services:
     image: sethidden/murmur
 ```
 
-If a new uMurmur version (and a new version of this image) comes out and your container is still using the old one, to update you can run `docker-compose pull umurmur` then `docker-compose up -d umurmur`.
+If a new Murmur version (and a new version of this image) comes out and your container is still using the old one, to update you can run `docker-compose pull murmur` then `docker-compose up -d murmur`.
 
-## Acknowledgements
-
-* the uMurmur team for letting us umurmur
-* Jeremy Petit for his work on [umurmur-docker](https://github.com/gp3t1/umurmur-docker/)
-* The Alpine Linux team for publishing a docker image that supports so many architectures out of the box
-* Leonardo Arena for maintaining [Alpine's uMurmur package](https://pkgs.alpinelinux.org/packages?name=umurmur) and publishing it for so many architectures  
-
-## License
-
-Copyright (C) <2017> <gp3t1>
-
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
